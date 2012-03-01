@@ -87,7 +87,7 @@ myWorkspaces    = ["Web","Term","pub","mail","irc","mpd","7","8","9", "10", "11"
 centerFloatFocused = withFocused $ \f -> windows =<< appEndo `fmap` runQuery (doRectFloat $ W.RationalRect 0.25 0.25 0.5 0.5) f
 hugeCenterFloatFocused = withFocused $ \f -> windows =<< appEndo `fmap` runQuery (doRectFloat $ W.RationalRect 0.15 0.15 0.7 0.7) f
 fullFloatFocused = withFocused $ \f -> windows =<< appEndo `fmap` runQuery doFullFloat f
- 
+
 ------------------------------------------------------------------------
 -- Key bindings. Add, modify or remove key bindings here.
 --
@@ -382,25 +382,34 @@ main = withConnection Session $ \ dbus -> do
            logHook            = logHook gnomeConfig >> dynamicLogWithPP (myPrettyPrinter dbus),
            startupHook        = myStartupHook,
            manageHook = composeAll [
- 	           className =? "MPlayer"            --> doFullFloat
+                 -- Gui Elements, panels, docks, unity, gnome, kde, ...
+                   className =? "Unity-2d-spread"    --> doFullFloat
+    	         , className =? "Unity-2d-places"    --> doFullFloat
+    	         , className =? "Unity-2d-panel"     --> doIgnore
+    	         , className =? "Unity-2d-launcher"  --> doIgnore
+                 , className =? "Gnome-panel"        --> doIgnore
+    	         , resource  =? "desktop_window"     --> doIgnore
+
+                 -- Launchers
+                 , className =? "Do"                 --> doIgnore
+    	         , className =? "Gnome-pie"          --> doIgnore
+    	         , className =? "Synapse"            --> doIgnore
         	 , className =? "Tilda"              --> doCenterFloat
+
+                 -- Applications
+ 	         , className =? "MPlayer"            --> doFullFloat
     	         , className =? "Vlc"                --> doFullFloat
     	         , className =? "Software-center"    --> doCenterFloat
     	         , className =? "." 		     --> doCenterFloat
-    	         , className =? "Unity-2d-panel"     --> doIgnore
-    	         , className =? "Unity-2d-launcher"  --> doIgnore
-    	         , className =? "Unity-2d-places"    --> doFloat
-    	         , className =? "Do"                 --> doIgnore
-    	         , className =? "Gnome-pie"          --> doIgnore
-    	         , className =? "gnome-panel"        --> doIgnore
-    	         , className =? "Synapse"            --> doIgnore
     	         , className =? "Wine" 		     --> doFloat
     	         , className =? "Stickynotes_applet" --> doFloat
-    	         , resource  =? "desktop_window"     --> doIgnore
-    	         , resource  =? "kdesktop"           --> doIgnore
-    	      	 , isDialog                          --> doCenterFloat
+
+                 -- Special window States
+    	    	 , isDialog                          --> doCenterFloat
     	         , isFullscreen                      --> doFullFloat 
-	         , manageDocks
-	         , manageHook gnomeConfig
+
+                 -- Groups
+	 --      , manageDocks
+	 --      , manageHook gnomeConfig
 	]
    }
