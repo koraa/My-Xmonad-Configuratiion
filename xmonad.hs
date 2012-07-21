@@ -1,7 +1,8 @@
 import XMonad
 import qualified XMonad.Actions.FlexibleResize as Flex
-import XMonad.Config.Gnome
 import XMonad.Config.Desktop
+import XMonad.Config.Gnome
+import XMonad.Config.Kde
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.ManageDocks
@@ -27,6 +28,8 @@ import DBus.Message
 
 import System.Cmd
 import System.Exit
+
+import XMonad
  
 -- The preferred terminal program, which is used in a binding below and by
 -- certain contrib modules.
@@ -297,7 +300,7 @@ myStartupHook = do
   spawn "/usr/bin/synapse"
   -- GNOME
 --  spawn "sleep 10 && /usr/bin/gnome-settings-daemon"
-  spawn "/usr/bin/gnome-panel"
+--  spawn "/usr/bin/gnome-panel"
 
 ------------------------------------------------------------------------
 -- Status bars and logging
@@ -359,7 +362,6 @@ pangoSanitize = foldr sanitize ""
 ------------------------------------------------------------------------
 -- Now run xmonad with all the defaults we set up.
 
-
 main = withConnection Session $ \ dbus -> do
          xmonad gnomeConfig {
 	
@@ -368,7 +370,7 @@ main = withConnection Session $ \ dbus -> do
            focusFollowsMouse  = myFocusFollowsMouse,
            borderWidth        = myBorderWidth,
            modMask            = myModMask,
-           numlockMask        = myNumlockMask,
+           --numlockMask        = myNumlockMask,
            workspaces         = myWorkspaces,
            normalBorderColor  = myNormalBorderColor,
            focusedBorderColor = myFocusedBorderColor,
@@ -381,10 +383,10 @@ main = withConnection Session $ \ dbus -> do
            layoutHook         = desktopLayoutModifiers myLayout,
            logHook            = logHook gnomeConfig >> dynamicLogWithPP (myPrettyPrinter dbus),
            startupHook        = myStartupHook,
+           handleEventHook    = fullscreenEventHook,
            manageHook = composeAll [
                  -- Gui Elements, panels, docks, unity, gnome, kde, ...
                    className =? "Unity-2d-spread"    --> doFullFloat
-    	         , className =? "Unity-2d-places"    --> doFullFloat
     	         , className =? "Unity-2d-panel"     --> doIgnore
     	         , className =? "Unity-2d-launcher"  --> doIgnore
                  , className =? "Gnome-panel"        --> doIgnore
@@ -409,7 +411,8 @@ main = withConnection Session $ \ dbus -> do
     	         , isFullscreen                      --> doFullFloat 
 
                  -- Groups
-	 --      , manageDocks
+	         , manageDocks
 	 --      , manageHook gnomeConfig
+         --      , manageHook kdeConfig
 	]
    }
